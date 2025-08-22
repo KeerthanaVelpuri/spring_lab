@@ -1,31 +1,56 @@
-node {
-    def mvnHome = tool name: 'maven', type: 'hudson.tasks.Maven$MavenInstallation'
 
-    withEnv([
-        "SONARQUBE_URL=https://d6312cd2eccd.ngrok-free.app/"
-    ]) {
-        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONARQUBE_TOKEN')]) {
-
-            stage('Checkout') {
-                git branch: 'main', credentialsId: 'git_creds', url: 'https://github.com/KeerthanaVelpuri/spring_lab.git'
+pipeline {
+    agent any
+    tools {
+        maven 'maven'
+    }
+    environment {
+        IMAGE_NAME = "keerthana978/lab:springboot"
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', credentialsId: 'github', url: 'https://github.com/KeerthanaVelpuri/spring_lab.git'
                 sh 'ls -la'
             }
+        }
 
-            stage('Build') {
-                sh "${mvnHome}/bin/mvn clean install"
+        stage('Build') {
+            steps {
+                sh 'mvn clean install'
             }
+        }
 
-            stage('Package') {
-                sh "${mvnHome}/bin/mvn package"
+        stage('Package') {
+            steps {
+                sh 'mvn package'
             }
+        }
 
-            stage('SonarQube Analysis') {
-                sh """
-                ${mvnHome}/bin/mvn sonar:sonar \
-                  -Dsonar.projectKey=simple-hello-keerthana \
-                  -Dsonar.host.url=https://d6312cd2eccd.ngrok-free.app/ \
-                  -Dsonar.login=$SONARQUBE_TOKEN
-                """
+        stage('Docker Build and Push') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker') {
+                        def app = docker.build("${IMAGE_NAME}")
+                        app.push()
+                    }
+                }
+            }
+        }
+
+        stage('Docker Pull') {
+            steps {
+                sh "docker pull ${IMAGE_NAME}"
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                docker stop myapp || true
+                docker rm myapp || true
+                docker run -d -p 8080:8080 --name myapp ${IMAGE_NAME}
+                '''
             }
         }
     }
