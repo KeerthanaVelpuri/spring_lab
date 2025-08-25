@@ -27,30 +27,9 @@ pipeline {
             }
         }
 
-        stage('Docker Build and Push') {
-            steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker') {
-                        def app = docker.build("${IMAGE_NAME}")
-                        app.push()
-                    }
-                }
-            }
-        }
+       
 
-        stage('Docker Pull') {
-            steps {
-                sh "docker pull ${IMAGE_NAME}"
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                sh '''
-                docker stop myapp || true
-                docker rm myapp || true
-                docker run -d -p 8080:8080 --name myapp ${IMAGE_NAME}
-                '''
+       
             }
         }
     }
