@@ -26,7 +26,13 @@ pipeline {
                 sh 'mvn package'
             }
         }
-
+        stage('SonarQube Analysis') {
+                sh """
+                ${mvnHome}/bin/mvn sonar:sonar \
+                  -Dsonar.projectKey=simple-hello-keerthana \
+                  -Dsonar.host.url=https://d6312cd2eccd.ngrok-free.app/ \
+                  -Dsonar.login=$SONARQUBE_TOKEN
+                """
        
 
        
