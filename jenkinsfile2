@@ -1,3 +1,4 @@
+#app-server jenkins pipeline
 pipeline {
     agent any
     tools{
