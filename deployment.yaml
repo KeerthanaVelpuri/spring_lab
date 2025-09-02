@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-app
+  namespace: keerthana
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: springboot-app
+  template:
+    metadata:
+      labels:
+        app: springboot-app
+    spec:
+      containers:
+      - name: springboot-container
+        image: keerthana978/lab:1.0.0  # Replace with your image
+        ports:
+        - containerPort: 8080         # Spring Boot default port
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"            
