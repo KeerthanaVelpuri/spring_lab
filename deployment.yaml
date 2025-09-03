@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: springboot-container
-        image: keerthana978/lab:1.0.0  # Replace with your image
+        image: keerthana978/springboot-hello:latest # Replace with your image
         ports:
         - containerPort: 8080         # Spring Boot default port
         env:
